@@ -26,12 +26,10 @@ private:
 };
 
 template <std::invocable<> Func>
-inline Defer<Func>::Defer(const Func& func) noexcept(std::is_nothrow_copy_constructible_v<Func>): m_func(func) {
-}
+inline Defer<Func>::Defer(const Func& func) noexcept(std::is_nothrow_copy_constructible_v<Func>): m_func(func) {}
 
 template <std::invocable<> Func>
-inline Defer<Func>::Defer(Func&& func) noexcept(std::is_nothrow_move_constructible_v<Func>): m_func(std::move(func)) {
-}
+inline Defer<Func>::Defer(Func&& func) noexcept(std::is_nothrow_move_constructible_v<Func>): m_func(std::move(func)) {}
 
 template <std::invocable<> Func>
 inline Defer<Func>::~Defer() noexcept(noexcept(std::invoke(std::declval<Func&&>))) {
