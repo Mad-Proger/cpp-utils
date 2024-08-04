@@ -43,6 +43,7 @@ IndentPPDirectives: None
 IndentWidth: 4
 KeepEmptyLinesAtTheStartOfBlocks: true
 Language: Cpp
+LineEnding: LF
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: Inner
 ObjCSpaceAfterProperty: false
