@@ -11,7 +11,7 @@ class Defer {
 public:
     Defer(const Func& func) noexcept(std::is_nothrow_copy_constructible_v<Func>);
     Defer(Func&& func) noexcept(std::is_nothrow_move_constructible_v<Func>);
-    ~Defer() noexcept(noexcept(std::invoke(std::declval<Func&&>)));
+    ~Defer() noexcept(std::is_nothrow_invocable_v<Func&&>);
 
     Defer(const Defer&) = delete;
     Defer(Defer&&) = delete;
@@ -32,7 +32,7 @@ template <std::invocable<> Func>
 inline Defer<Func>::Defer(Func&& func) noexcept(std::is_nothrow_move_constructible_v<Func>): m_func(std::move(func)) {}
 
 template <std::invocable<> Func>
-inline Defer<Func>::~Defer() noexcept(noexcept(std::invoke(std::declval<Func&&>))) {
+inline Defer<Func>::~Defer() noexcept(std::is_nothrow_invocable_v<Func&&>) {
     if (m_func.has_value()) {
         std::invoke(std::move(m_func).value());
     }
