@@ -37,7 +37,7 @@ std::unique_ptr<std::byte[], MapDeleter> MapFile(const std::filesystem::path& pa
 
     auto fileSize = static_cast<size_t>(end - start);
     auto mapped =
-            static_cast<std::byte*>(mmap(nullptr, fileSize, PROT_READ | PROT_WRITE, MAP_FILE | MAP_PRIVATE, fd, 0));
+            static_cast<std::byte*>(mmap(nullptr, fileSize, PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, fd, 0));
     if (mapped == MAP_FAILED) errnoThrow("could not map file to memory");
 
     closeFd.cancel();
