@@ -12,6 +12,7 @@
 
 #include <cerrno>
 #include <system_error>
+#include <utility>
 
 namespace {
 
@@ -52,6 +53,11 @@ namespace detail {
         MapDeleter moved = std::move(other);
         swap(moved);
         return *this;
+    }
+
+    void MapDeleter::swap(MapDeleter& other) noexcept {
+        std::swap(m_fileDescriptor, other.m_fileDescriptor);
+        std::swap(m_mapLength, other.m_mapLength);
     }
 
 }// namespace detail
