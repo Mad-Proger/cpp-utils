@@ -21,7 +21,7 @@ inline void errnoThrow(const char* what) {
 }
 
 uint8_t* mapSized(int fd, size_t fileSize) {
-    auto mapped = static_cast<uint8_t*>(mmap(nullptr, fileSize, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0));
+    auto mapped = static_cast<uint8_t*>(mmap(nullptr, fileSize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
     if (mapped == MAP_FAILED) errnoThrow("could not map file to memory");
     return mapped;
 }
