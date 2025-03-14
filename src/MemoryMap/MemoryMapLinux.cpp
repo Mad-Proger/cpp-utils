@@ -80,7 +80,7 @@ FileMap FileMap::openExisting(const std::filesystem::path& path) {
 }
 
 FileMap FileMap::createNew(const std::filesystem::path& path, size_t fileSize) {
-    int fd = open(path.c_str(), O_CREAT | O_EXCL | O_RDWR);
+    int fd = open(path.c_str(), O_CREAT | O_EXCL | O_RDWR, 0644);
     if (fd == -1) errnoThrow("could not create file");
     Defer closeFd{[fd]() { close(fd); }};
     int err = fallocate64(fd, 0, 0, static_cast<off64_t>(fileSize));
