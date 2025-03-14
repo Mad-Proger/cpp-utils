@@ -1,6 +1,8 @@
 set(SOURCES MemoryMap.cpp)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(SOURCES ${SOURCES} MemoryMapLinux.cpp)
+else()
+    message(ERROR "platform is not supported")
 endif()
 
 add_library(memory-map STATIC ${SOURCES})
