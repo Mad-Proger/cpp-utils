@@ -63,7 +63,7 @@ namespace detail {
 }// namespace detail
 
 FileMap FileMap::openExisting(const std::filesystem::path& path) {
-    int fd = open(std::filesystem::absolute(path).c_str(), 0, O_RDWR);
+    int fd = open(std::filesystem::absolute(path).c_str(), O_RDWR);
     if (fd == -1) errnoThrow("could not open file to map");
     Defer closeFd{[fd]() { close(fd); }};
 
@@ -80,7 +80,7 @@ FileMap FileMap::openExisting(const std::filesystem::path& path) {
 }
 
 FileMap FileMap::createNew(const std::filesystem::path& path, size_t fileSize) {
-    int fd = open(path.c_str(), O_CREAT | O_EXCL, 0600);
+    int fd = open(path.c_str(), O_CREAT | O_EXCL | O_RDWR);
     if (fd == -1) errnoThrow("could not create file");
     Defer closeFd{[fd]() { close(fd); }};
     int err = fallocate64(fd, 0, 0, static_cast<off64_t>(fileSize));
