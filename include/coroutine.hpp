@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <memory>
 
 class Coroutine {
 public:
@@ -17,17 +16,28 @@ public:
         Coroutine& m_coro;
     };
 
+    Coroutine() noexcept = default;
     template <std::invocable<Handle> Body>
     explicit Coroutine(Body&& body);
+    ~Coroutine();
+
+    Coroutine(const Coroutine&) = delete;
+    Coroutine& operator=(const Coroutine&) = delete;
+
+    Coroutine(Coroutine&&) noexcept;
+    Coroutine& operator=(Coroutine&&) noexcept;
+
+    void Swap(Coroutine& other) noexcept;
 
     void Run();
     bool IsDone() const noexcept;
 
 private:
-    std::unique_ptr<uint8_t[]> m_stack{nullptr};
-    bool m_finished{false};
+    uint8_t* m_stack{nullptr};
+    bool m_finished{true};
     uint8_t* m_target_stack{nullptr};
 
+    uint8_t* AllocateStack();
     void SetupStack(void* data, uint8_t* (*trampoline)(uint8_t*, void*) );
     void Switch();
 
@@ -35,8 +45,9 @@ private:
 };
 
 template <std::invocable<Coroutine::Handle> Body>
-inline Coroutine::Coroutine(Body&& body): m_stack{new uint8_t[STACK_SIZE]}
-                                        , m_target_stack{m_stack.get()} {
+inline Coroutine::Coroutine(Body&& body): m_stack{AllocateStack()}
+                                        , m_finished{false}
+                                        , m_target_stack{m_stack} {
     struct TrampolineData {
         Body& body;
         Coroutine& coro;
