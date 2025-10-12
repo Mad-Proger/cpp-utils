@@ -39,3 +39,15 @@ TEST(Coroutine, ExceptionForwarding) {
     ASSERT_THROW(coro.Run(), TestException);
     ASSERT_TRUE(coro.IsDone());
 }
+
+TEST(Coroutine, ConstructorThrow) {
+    struct CopyThrow {
+        CopyThrow() = default;
+        CopyThrow(const CopyThrow&) {
+            throw std::runtime_error{""};
+        }
+        void operator()(Coroutine::Handle) {}
+    };
+
+    ASSERT_THROW(Coroutine coro{CopyThrow{}}, std::runtime_error);
+}
