@@ -4,7 +4,9 @@
 
 #include <cassert>
 #include <cstdint>
+#include <exception>
 #include <new>
+#include <stdexcept>
 #include <utility>
 
 namespace {
@@ -38,12 +40,14 @@ void Coroutine::Swap(Coroutine& other) noexcept {
     std::swap(m_target_stack, other.m_target_stack);
 }
 
-void Coroutine::Handle::Yield() {
+void Coroutine::Handle::Yield() noexcept {
     m_coro.Switch();
 }
 
 void Coroutine::Run() {
+    if (IsDone()) throw std::runtime_error{"trying to run finished coroutine"};
     Switch();
+    if (m_exception) std::rethrow_exception(m_exception);
 }
 
 bool Coroutine::IsDone() const noexcept {
@@ -57,10 +61,10 @@ uint8_t* Coroutine::AllocateStack() {
     return reinterpret_cast<uint8_t*>(stack);
 }
 
-void Coroutine::SetupStack(void* data, uint8_t* (*trampoline)(uint8_t*, void*) ) {
+void Coroutine::SetupStack(void* data, uint8_t* (*trampoline)(uint8_t*, void*) ) noexcept {
     CreateContext(m_stack + STACK_SIZE, data, trampoline);
 }
 
-void Coroutine::Switch() {
+void Coroutine::Switch() noexcept {
     SwitchContext(m_target_stack, &m_target_stack);
 }

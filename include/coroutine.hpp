@@ -3,6 +3,7 @@
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <functional>
 
 class Coroutine {
@@ -10,7 +11,7 @@ public:
     class Handle {
     public:
         explicit Handle(Coroutine& coro) noexcept;
-        void Yield();
+        void Yield() noexcept;
 
     private:
         Coroutine& m_coro;
@@ -36,10 +37,11 @@ private:
     uint8_t* m_stack{nullptr};
     bool m_finished{true};
     uint8_t* m_target_stack{nullptr};
+    std::exception_ptr m_exception{};
 
     uint8_t* AllocateStack();
-    void SetupStack(void* data, uint8_t* (*trampoline)(uint8_t*, void*) );
-    void Switch();
+    void SetupStack(void* data, uint8_t* (*trampoline)(uint8_t*, void*) ) noexcept;
+    void Switch() noexcept;
 
     static constexpr size_t STACK_SIZE = 8 * 1024 * 1024;
 };
@@ -59,7 +61,11 @@ inline Coroutine::Coroutine(Body&& body): m_stack{AllocateStack()}
 
         coro.m_target_stack = old_stack;
         coro.Switch();
-        std::invoke(std::move(func), Handle{coro});
+        try {
+            std::invoke(std::move(func), Handle{coro});
+        } catch (...) {
+            coro.m_exception = std::current_exception();
+        }
         coro.m_finished = true;
         return coro.m_target_stack;
     });
