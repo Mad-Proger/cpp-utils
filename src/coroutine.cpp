@@ -26,7 +26,7 @@ bool Coroutine::IsDone() const noexcept {
 }
 
 void Coroutine::SetupStack(void* data, uint8_t* (*trampoline)(uint8_t*, void*) ) {
-    CreateContext(m_stack.get(), data, trampoline);
+    CreateContext(m_stack.get() + STACK_SIZE, data, trampoline);
 }
 
 void Coroutine::Switch() {

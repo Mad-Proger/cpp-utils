@@ -24,7 +24,7 @@ ExecuteTrampoline:
     xor rdi, rsp
 
     # align new stack for 16 bytes
-    and rsp, 0xFFFF'FFFF'FFFF'FFF0
+    and rsp, 0xFFFFFFFFFFFFFFF0
     call rdx
     mov rsp, rax
     jmp LoadRegisters
