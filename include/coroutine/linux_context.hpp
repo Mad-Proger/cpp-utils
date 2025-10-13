@@ -16,7 +16,7 @@ public:
     LinuxContext& operator=(LinuxContext&&) noexcept;
     void Swap(LinuxContext& other) noexcept;
 
-    void Enter(LinuxContext& return_context, void* data, void (*trampoline)(void*)) noexcept;
+    void Enter(LinuxContext& target_context, void* data, void (*trampoline)(void*)) noexcept;
     void SwitchTo(LinuxContext& target_context) noexcept;
 
 private:

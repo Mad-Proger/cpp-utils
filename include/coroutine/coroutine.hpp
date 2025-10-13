@@ -19,7 +19,7 @@ public:
     };
 
     Coroutine() noexcept = default;
-    template <std::invocable<Handle> Body>
+    template <std::invocable<Coroutine::Handle> Body>
     explicit Coroutine(Body&& body);
 
     Coroutine(const Coroutine&) = delete;

@@ -3,6 +3,8 @@ if(UNIX)
         unix/context_switch.s
         unix/linux_context.cpp
     )
+elseif(WIN32)
+    set(CORO_IMPL windows_context.cpp)
 else()
     message(FATAL_ERROR "Unsupported platform for coroutines")
 endif()
