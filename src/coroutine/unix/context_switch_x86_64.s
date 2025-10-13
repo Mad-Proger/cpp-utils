@@ -40,9 +40,3 @@ EnterStack:
     pop rbx
 
     ret
-
-.data
-LeaveReturnAddrFmt:
-    .string "LeaveStack: return address = %p\n"
-EnterReturnAddrFmt:
-    .string "Enter stack: returning to address %p\n"
