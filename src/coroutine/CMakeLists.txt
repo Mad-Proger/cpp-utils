@@ -1,7 +1,7 @@
 if(UNIX)
     set(CORO_IMPL
         unix/context_switch.s
-        unix/linux_context.cpp
+        unix/unix_context.cpp
     )
 elseif(WIN32)
     set(CORO_IMPL windows_context.cpp)

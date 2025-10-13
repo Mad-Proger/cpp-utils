@@ -1,4 +1,4 @@
-#include "linux_context.hpp"
+#include "unix_context.hpp"
 
 #include <sys/mman.h>
 
@@ -12,7 +12,7 @@ void SwitchContext(uint8_t* new_stack, uint8_t** old_stack);
 void SetupContext(uint8_t* new_stack, uint8_t** old_stack, void* data, void (*trampoline)(void*));
 }
 
-LinuxContext::LinuxContext(size_t stack_size): m_stack{nullptr}, m_stack_size{stack_size} {
+UnixContext::UnixContext(size_t stack_size): m_stack{nullptr}, m_stack_size{stack_size} {
     void* stack = mmap(nullptr, stack_size, PROT_READ | PROT_WRITE,
                        MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE | MAP_STACK, -1, 0);
     if (stack == MAP_FAILED) throw std::bad_alloc{};
@@ -20,31 +20,31 @@ LinuxContext::LinuxContext(size_t stack_size): m_stack{nullptr}, m_stack_size{st
     m_stack_top = m_stack + m_stack_size;
 }
 
-LinuxContext::~LinuxContext() {
+UnixContext::~UnixContext() {
     if (m_stack == nullptr) return;
     assert(munmap(m_stack, m_stack_size) == 0 && "could not unmap stack");
 }
 
-LinuxContext::LinuxContext(LinuxContext&& other) noexcept: LinuxContext() {
+UnixContext::UnixContext(UnixContext&& other) noexcept: UnixContext() {
     Swap(other);
 }
 
-LinuxContext& LinuxContext::operator=(LinuxContext&& other) noexcept {
-    LinuxContext moved = std::move(other);
+UnixContext& UnixContext::operator=(UnixContext&& other) noexcept {
+    UnixContext moved = std::move(other);
     Swap(moved);
     return *this;
 }
 
-void LinuxContext::Swap(LinuxContext& other) noexcept {
+void UnixContext::Swap(UnixContext& other) noexcept {
     std::swap(m_stack, other.m_stack);
     std::swap(m_stack_top, other.m_stack_top);
     std::swap(m_stack_size, other.m_stack_size);
 }
 
-void LinuxContext::Enter(LinuxContext& target_context, void* data, void (*trampoline)(void*)) noexcept {
+void UnixContext::Enter(UnixContext& target_context, void* data, void (*trampoline)(void*)) noexcept {
     SetupContext(target_context.m_stack_top, &m_stack_top, data, trampoline);
 }
 
-void LinuxContext::SwitchTo(LinuxContext& target_context) noexcept {
+void UnixContext::SwitchTo(UnixContext& target_context) noexcept {
     SwitchContext(target_context.m_stack_top, &m_stack_top);
 }

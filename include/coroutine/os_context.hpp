@@ -1,8 +1,8 @@
 #pragma once
 
 #ifdef __unix__
-#include "linux_context.hpp"
-using OsContext = LinuxContext;
+#include "unix_context.hpp"
+using OsContext = UnixContext;
 #elif _WIN32
 #include "windows_context.hpp"
 using OsContext = WindowsContext;
