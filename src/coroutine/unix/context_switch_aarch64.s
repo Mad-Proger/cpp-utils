@@ -38,16 +38,16 @@ LeaveStack:
     br x4
 
 EnterStack:
-    ldp q14, q15, [sp, 32]!
-    ldp q12, q13, [sp, 32]!
-    ldp q10, q11, [sp, 32]!
-    ldp  q8,  q9, [sp, 32]!
+    ldp q14, q15, [sp], 32
+    ldp q12, q13, [sp], 32
+    ldp q10, q11, [sp], 32
+    ldp  q8,  q9, [sp], 32
 
-    ldp x29, x30, [sp, 16]!
-    ldp x27, x28, [sp, 16]!
-    ldp x25, x26, [sp, 16]!
-    ldp x23, x24, [sp, 16]!
-    ldp x21, x22, [sp, 16]!
-    ldp x19, x20, [sp, 16]!
+    ldp x29, x30, [sp], 16
+    ldp x27, x28, [sp], 16
+    ldp x25, x26, [sp], 16
+    ldp x23, x24, [sp], 16
+    ldp x21, x22, [sp], 16
+    ldp x19, x20, [sp], 16
 
     ret
