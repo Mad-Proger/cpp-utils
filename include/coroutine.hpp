@@ -1,8 +1,9 @@
 #pragma once
 
+#include "os_context.hpp"
+
 #include <concepts>
 #include <cstddef>
-#include <cstdint>
 #include <exception>
 #include <functional>
 
@@ -20,7 +21,6 @@ public:
     Coroutine() noexcept = default;
     template <std::invocable<Handle> Body>
     explicit Coroutine(Body&& body);
-    ~Coroutine();
 
     Coroutine(const Coroutine&) = delete;
     Coroutine& operator=(const Coroutine&) = delete;
@@ -34,41 +34,40 @@ public:
     bool IsDone() const noexcept;
 
 private:
-    uint8_t* m_stack{nullptr};
-    bool m_finished{true};
-    uint8_t* m_target_stack{nullptr};
-    std::exception_ptr m_exception{};
+    void Yield() noexcept;
 
-    uint8_t* AllocateStack();
-    void SetupStack(void* data, uint8_t* (*trampoline)(uint8_t*, void*) ) noexcept;
-    void Switch() noexcept;
+private:
+    OsContext m_coro_context{};
+    OsContext m_return_context{};
+    bool m_finished{true};
+    std::exception_ptr m_exception{};
 
     static constexpr size_t STACK_SIZE = 8 * 1024 * 1024;
 };
 
 template <std::invocable<Coroutine::Handle> Body>
-inline Coroutine::Coroutine(Body&& body): m_stack{AllocateStack()}
-                                        , m_finished{false}
-                                        , m_target_stack{m_stack} {
+inline Coroutine::Coroutine(Body&& body): m_coro_context{STACK_SIZE}
+                                        , m_finished{false} {
     struct TrampolineData {
         Body& body;
         Coroutine& coro;
     } trampoline_data{body, *this};
-    SetupStack(&trampoline_data, [](uint8_t* old_stack, void* data_raw) {
+
+    m_return_context.Enter(m_coro_context, &trampoline_data, [](void* data_raw) {
         auto data = reinterpret_cast<TrampolineData*>(data_raw);
         Coroutine& coro = data->coro;
-        coro.m_target_stack = old_stack;
 
         try {
             auto func = std::forward<Body>(data->body);
-            coro.Switch();
+            coro.Yield();
             std::invoke(std::move(func), Handle{coro});
         } catch (...) {
             coro.m_exception = std::current_exception();
         }
 
         coro.m_finished = true;
-        return coro.m_target_stack;
+        coro.Yield();
     });
+
     if (m_exception) std::rethrow_exception(m_exception);
 }

@@ -2,47 +2,47 @@
 
 .text
 .global SwitchContext
-.global CreateContext
+.global SetupContext
 
 SwitchContext:
-    lea rax, [rip + SwitchImpl]
-    jmp SaveRegisters
+    lea rax, [rip + EnterStack]
+    jmp LeaveStack
 
-SwitchImpl:
-    mov [rsi], rsp
-    mov rsp, rdi
-    jmp LoadRegisters
-
-CreateContext:
+SetupContext:
     lea rax, [rip + ExecuteTrampoline]
-    jmp SaveRegisters
+    jmp LeaveStack
 
 ExecuteTrampoline:
-    # swap(rdi, rsp)
-    xor rdi, rsp
-    xor rsp, rdi
-    xor rdi, rsp
-
     # align new stack for 16 bytes
     and rsp, 0xFFFFFFFFFFFFFFF0
-    call rdx
-    mov rsp, rax
-    jmp LoadRegisters
+    mov rdi, rdx
+    call rcx
 
-SaveRegisters:
+LeaveStack:
     push rbx
     push rbp
     push r12
     push r13
     push r14
     push r15
+
+    mov [rsi], rsp
+    mov rsp, rdi
+
     jmp rax
 
-LoadRegisters:
+EnterStack:
     pop r15
     pop r14
     pop r13
     pop r12
     pop rbp
     pop rbx
+
     ret
+
+.data
+LeaveReturnAddrFmt:
+    .string "LeaveStack: return address = %p\n"
+EnterReturnAddrFmt:
+    .string "Enter stack: returning to address %p\n"
