@@ -1,6 +1,6 @@
 #include "windows_context.hpp"
 
-#include <Windows.h>
+#include <windows.h>
 
 #include <algorithm>
 #include <system_error>
