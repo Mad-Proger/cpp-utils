@@ -6,7 +6,7 @@
 #include <system_error>
 
 WindowsContext::WindowsContext(): m_fiber{GetCurrentFiber()} {
-    if (m_fiber) return;
+    if (IsThreadAFiber()) return;
     m_fiber = ConvertThreadToFiber(nullptr);
     if (!m_fiber) {
         DWORD error_code = GetLastError();
