@@ -12,7 +12,10 @@ public:
     class Handle {
     public:
         explicit Handle(Coroutine& coro) noexcept;
+        Handle(const Handle&) noexcept = default;
+
         void Yield() noexcept;
+        void SwitchTo(Handle target) noexcept;
 
     private:
         Coroutine& m_coro;
@@ -35,6 +38,7 @@ public:
 
 private:
     void Yield() noexcept;
+    void SwitchTo(Coroutine& target) noexcept;
 
 private:
     OsContext m_coro_context{};
