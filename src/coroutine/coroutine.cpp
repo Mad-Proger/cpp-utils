@@ -11,6 +11,14 @@ Coroutine::Coroutine(Coroutine&& other) noexcept: Coroutine() {
     Swap(other);
 }
 
+void Coroutine::Handle::Yield() noexcept {
+    m_coro.Yield();
+}
+
+void Coroutine::Handle::SwitchTo(Handle target) noexcept {
+    m_coro.SwitchTo(target.m_coro);
+}
+
 Coroutine& Coroutine::operator=(Coroutine&& other) noexcept {
     Coroutine moved = std::move(other);
     Swap(moved);
@@ -22,10 +30,6 @@ void Coroutine::Swap(Coroutine& other) noexcept {
     m_return_context.Swap(other.m_return_context);
     std::swap(m_finished, other.m_finished);
     std::swap(m_exception, other.m_exception);
-}
-
-void Coroutine::Handle::Yield() noexcept {
-    m_coro.Yield();
 }
 
 void Coroutine::Run() {
@@ -40,4 +44,9 @@ bool Coroutine::IsDone() const noexcept {
 
 void Coroutine::Yield() noexcept {
     m_coro_context.SwitchTo(m_return_context);
+}
+
+void Coroutine::SwitchTo(Coroutine& target) noexcept {
+    m_return_context.Swap(target.m_return_context);
+    m_coro_context.SwitchTo(target.m_coro_context);
 }

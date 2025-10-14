@@ -24,6 +24,27 @@ TEST(Coroutine, BasicUsage) {
     ASSERT_EQ(++sequence_counter, 5);
 }
 
+TEST(Coroutine, DirectSwitch) {
+    int sequence_counter = 0;
+    Coroutine a{[&sequence_counter](auto) { ASSERT_EQ(++sequence_counter, 3); }};
+    Coroutine b{[&sequence_counter, a = Coroutine::Handle{a}](auto self) {
+        ASSERT_EQ(++sequence_counter, 2);
+        self.SwitchTo(a);
+        ASSERT_EQ(++sequence_counter, 5);
+    }};
+
+    ASSERT_EQ(++sequence_counter, 1);
+    b.Run();
+    ASSERT_EQ(++sequence_counter, 4);
+
+    ASSERT_TRUE(a.IsDone());
+    ASSERT_FALSE(b.IsDone());
+
+    b.Run();
+    ASSERT_EQ(++sequence_counter, 6);
+    ASSERT_TRUE(b.IsDone());
+}
+
 TEST(Coroutine, CantRunWhenDone) {
     Coroutine coro{[](auto) {}};
 
