@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <utility>
 
+namespace util {
+
 template <std::invocable<> Func>
 class Defer {
 public:
@@ -42,3 +44,5 @@ template <std::invocable<> Func>
 inline void Defer<Func>::cancel() noexcept {
     m_func.reset();
 }
+
+}// namespace util
