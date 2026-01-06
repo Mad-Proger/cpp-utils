@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <utility>
 
+namespace util {
+
 template <std::invocable<> Func>
 class Defer {
 public:
@@ -19,7 +21,7 @@ public:
     Defer& operator=(const Defer&) = delete;
     Defer& operator=(Defer&&) = delete;
 
-    void cancel() noexcept;
+    void Cancel() noexcept;
 
 private:
     std::optional<Func> m_func;
@@ -39,6 +41,8 @@ inline Defer<Func>::~Defer() noexcept(std::is_nothrow_invocable_v<Func&&>) {
 }
 
 template <std::invocable<> Func>
-inline void Defer<Func>::cancel() noexcept {
+inline void Defer<Func>::Cancel() noexcept {
     m_func.reset();
 }
+
+}// namespace util
