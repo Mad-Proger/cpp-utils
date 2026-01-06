@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include <stdexcept>
 #include <type_traits>
 
 struct NoThrow {
@@ -40,4 +41,13 @@ TEST(DeferBasic, Cancellation) {
         d.Cancel();
     }
     ASSERT_FALSE(called);
+}
+
+
+TEST(DeferExceptions, Throw) {
+    ASSERT_THROW([] { util::Defer d{[] { throw std::runtime_error(""); }}; }(), std::runtime_error);
+}
+
+TEST(DeferExceptions, NoexceptTerminate) {
+    ASSERT_DEATH({ util::Defer d{[] noexcept { throw 42; }}; }, "");
 }
