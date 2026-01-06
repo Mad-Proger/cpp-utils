@@ -45,9 +45,9 @@ TEST(DeferBasic, Cancellation) {
 
 
 TEST(DeferExceptions, Throw) {
-    ASSERT_THROW([] { util::Defer d{[] { throw std::runtime_error(""); }}; }(), std::runtime_error);
+    ASSERT_THROW([]() { util::Defer d{[] { throw std::runtime_error(""); }}; }(), std::runtime_error);
 }
 
 TEST(DeferExceptions, NoexceptTerminate) {
-    ASSERT_DEATH({ util::Defer d{[] noexcept { throw 42; }}; }, "");
+    ASSERT_DEATH({ util::Defer d{[]() noexcept { throw 42; }}; }, "");
 }

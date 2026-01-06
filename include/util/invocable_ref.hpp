@@ -17,7 +17,7 @@ public:
         requires std::is_invocable_r_v<R, F&, Args...>
     explicit InvocableRef(F& func) noexcept
         : m_call_thunk{[](void* func_body, Args... args) -> R {
-            return std::invoke(*reinterpret_cast<F*>(func_body), std::forward<Args>(args)...);
+            return std::invoke(*static_cast<F*>(func_body), std::forward<Args>(args)...);
         }}
         , m_data{std::addressof(func)} {}
 
@@ -54,7 +54,7 @@ public:
         , m_data{std::addressof(func)} {}
 
     explicit InvocableRef(R (*fptr)(Args...) noexcept) noexcept
-        : m_call_thunk{[](void* fptr_raw, Args... args) {
+        : m_call_thunk{[](void* fptr_raw, Args... args) noexcept {
             auto fptr = static_cast<R (*)(Args...) noexcept>(fptr_raw);
             return fptr(std::forward<Args>(args)...);
         }}

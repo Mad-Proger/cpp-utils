@@ -1,5 +1,7 @@
 #pragma once
 
+#include "defer.hpp"
+
 #include <concepts>
 #include <cstddef>
 #include <memory>
@@ -30,9 +32,8 @@ public:
     }
 
     T Take() noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_destructible_v<T>) {
-        T obj = std::move(Get());
-        Destroy();
-        return obj;
+        Defer destroy{[this]() noexcept(std::is_nothrow_destructible_v<T>) { Destroy(); }};
+        return std::move(Get());
     }
 
     T& Get() noexcept {
